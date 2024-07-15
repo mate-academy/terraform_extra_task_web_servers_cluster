@@ -1,0 +1,96 @@
+name: Terraform Validate
+
+run-name: ${{ github.actor }} - ${{ github.ref_name }}
+
+on:
+  pull_request:
+    branches:
+      - main
+  
+  workflow_dispatch:
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.8.4
+
+    - name: Check Lock File
+      run: |
+        if [ ! -f .terraform.lock.hcl ]; then
+          echo "Lock file not found!"
+          exit 1
+        fi
+        echo "Lock file found and verified."
+
+    - name: Check resource group configuration
+      run: |
+        if ! grep -q 'resource "azurerm_resource_group"' resource_group.tf; then
+          echo "Resource group configuration not found in resource_group.tf!"
+          exit 1
+        fi
+        echo "Resource group configuration is present."
+
+    - name: Check virtual network configuration
+      run: |
+        if ! grep -q 'resource "azurerm_virtual_network"' network.tf; then
+          echo "Virtual network configuration not found in network.tf!"
+          exit 1
+        fi
+        echo "Virtual network configuration is present."
+
+    - name: Check subnet configuration
+      run: |
+        if ! grep -q 'resource "azurerm_subnet"' network.tf; then
+          echo "Subnet configuration not found in network.tf!"
+          exit 1
+        fi
+        echo "Subnet configuration is present."
+
+    - name: Check public IP configuration
+      run: |
+        if ! grep -q 'resource "azurerm_public_ip"' load_balancer.tf; then
+          echo "Public IP configuration not found in load_balancer.tf!"
+          exit 1
+        fi
+        echo "Public IP configuration is present."
+
+    - name: Check load balancer configuration
+      run: |
+        if ! grep -q 'resource "azurerm_lb"' load_balancer.tf; then
+          echo "Load balancer configuration not found in load_balancer.tf!"
+          exit 1
+        fi
+        echo "Load balancer configuration is present."
+
+    - name: Check VM scale set configuration
+      run: |
+        if ! grep -q 'resource "azurerm_linux_virtual_machine_scale_set"' vmss.tf; then
+          echo "VM scale set configuration not found in vmss.tf!"
+          exit 1
+        fi
+        echo "VM scale set configuration is present."
+
+    - name: Check output configuration
+      run: |
+        if ! grep -q 'output "public_ip"' outputs.tf; then
+          echo "Output configuration not found in outputs.tf!"
+          exit 1
+        fi
+        echo "Output configuration is present."
+    
+    - name: Terraform Fmt
+      run: terraform fmt -check -recursive -diff
+    
+    - name: Terraform Init
+      run: terraform init
+
+    - name: Terraform Validate
+      run: terraform validate
