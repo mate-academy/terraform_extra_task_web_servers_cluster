@@ -12,7 +12,16 @@ To complete this task, you must have Terraform and Azure CLI installed and confi
 
 **2. Set Up Structure**
 
-![alt text](image.png)
+```
+/
+├─ main.tf
+├─ resource_group.tf
+├─ network.tf
+├─ load_balancer.tf
+├─ vmss.tf
+├─ outputs.tf
+└─ vars.tf
+```
 
 **3. Define Configuration Files**
 
@@ -52,6 +61,6 @@ To complete this task, you must have Terraform and Azure CLI installed and confi
 
 **5. Initialize and Apply the Configuration**
 
-**6. After deploy don't forget to delete all resources**
+**6. After deployment don't forget to delete all resources**
 
 **7. Pull request's description should also contain a reference to a successful workflow run**
